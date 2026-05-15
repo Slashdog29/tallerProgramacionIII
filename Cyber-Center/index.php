@@ -1,51 +1,101 @@
 <?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
+
+$panel_url = 'src/index.php';
+
 if (!empty($_SESSION['active'])) {
-    header('location: src/');
+    header('location: ' . $panel_url);
     exit;
 }
 
 $login_exitoso = false;
 $nombre_usuario = "";
+$mensaje_alerta = "";
 
 if (!empty($_POST)) {
-    $mensaje_alerta = '';
-
     if (empty($_POST['usuario']) || empty($_POST['clave'])) {
         $mensaje_alerta = '⚠️ Ingrese su usuario y contraseña';
     } else {
         require_once "conexion.php";
-        $usuario_ingresado = mysqli_real_escape_string($conexion, $_POST['usuario']);
-        $clave_ingresada = md5(mysqli_real_escape_string($conexion, $_POST['clave']));
-        $consulta = mysqli_query($conexion, "SELECT * FROM USUARIO 
-                                             WHERE usuario = '$usuario_ingresado' 
-                                             AND clave = '$clave_ingresada' 
-                                             AND estado = 1");
-        if (mysqli_num_rows($consulta) > 0) {
-            $datos_usuario = mysqli_fetch_array($consulta);
 
-            $_SESSION['active'] = true;
-            $_SESSION['idUser'] = $datos_usuario['idusuario'];
-            $_SESSION['nombre'] = $datos_usuario['nombre'];
-            $_SESSION['rol'] = $datos_usuario['rol'] ?? 'empleado';
-            $_SESSION['user'] = $datos_usuario['usuario'];
-
-            $nombre_usuario = $_SESSION['nombre'];
-            $ip_usuario = $_SERVER['REMOTE_ADDR'];
-            $fecha_hora = date('Y-m-d H:i:s');
-
-            mysqli_query($conexion, "INSERT INTO HISTORIAL(usuario, ip, fyh, sector, acciones) 
-                                     VALUES ('$nombre_usuario', '$ip_usuario', '$fecha_hora', 'login', 'Inicio de sesión')");
-
-            $login_exitoso = true;
+        if (!$conexion || $conexion->connect_error) {
+            $mensaje_alerta = '❌ Error de conexión con la base de datos';
+            error_log("Error de conexión: " . ($conexion->connect_error ?? "conexión nula"));
         } else {
-            $mensaje_alerta = '❌ Usuario o contraseña incorrectos';
-            session_destroy();
+            $usuario_ingresado = $_POST['usuario'];
+            $clave_ingresada = $_POST['clave'];
+
+            $stmt = $conexion->prepare("SELECT idusuario, nombre, usuario, clave, estado FROM USUARIO WHERE usuario = ? AND estado = 1");
+            if ($stmt) {
+                $stmt->bind_param("s", $usuario_ingresado);
+                $stmt->execute();
+                $resultado = $stmt->get_result();
+
+                if ($resultado->num_rows === 1) {
+                    $datos_usuario = $resultado->fetch_assoc();
+                    $hash_almacenado = $datos_usuario['clave'];
+
+                    $password_valida = false;
+
+                    if (strlen($hash_almacenado) === 32 && ctype_xdigit($hash_almacenado)) {
+                        if (md5($clave_ingresada) === $hash_almacenado) {
+                            $password_valida = true;
+                            $nuevo_hash = password_hash($clave_ingresada, PASSWORD_DEFAULT);
+                            $update_stmt = $conexion->prepare("UPDATE USUARIO SET clave = ? WHERE idusuario = ?");
+                            $update_stmt->bind_param("si", $nuevo_hash, $datos_usuario['idusuario']);
+                            $update_stmt->execute();
+                            $update_stmt->close();
+                            error_log("Contraseña migrada para usuario: " . $usuario_ingresado);
+                        }
+                    } 
+                    else {
+                        $password_valida = password_verify($clave_ingresada, $hash_almacenado);
+                    }
+
+                    if ($password_valida) {
+                        $_SESSION['active'] = true;
+                        $_SESSION['idUser'] = $datos_usuario['idusuario'];
+                        $_SESSION['nombre'] = $datos_usuario['nombre'];
+                        $_SESSION['rol'] = $datos_usuario['rol'] ?? 'empleado';
+                        $_SESSION['user'] = $datos_usuario['usuario'];
+
+                        $nombre_usuario = $_SESSION['nombre'];
+                        $ip_usuario = $_SERVER['REMOTE_ADDR'];
+                        $fecha_hora = date('Y-m-d H:i:s');
+
+                        $stmt2 = $conexion->prepare("INSERT INTO HISTORIAL (usuario, ip, fyh, sector, acciones) VALUES (?, ?, ?, ?, ?)");
+                        if ($stmt2) {
+                            $sector = 'login';
+                            $accion = 'Inicio de sesión';
+                            $stmt2->bind_param("sssss", $nombre_usuario, $ip_usuario, $fecha_hora, $sector, $accion);
+                            $stmt2->execute();
+                            $stmt2->close();
+                        } else {
+                            error_log("Error prepare historial: " . $conexion->error);
+                        }
+
+                        $login_exitoso = true;
+                    } else {
+                        $mensaje_alerta = '❌ Usuario o contraseña incorrectos';
+                        session_destroy();
+                    }
+                } else {
+                    $mensaje_alerta = '❌ Usuario o contraseña incorrectos';
+                    session_destroy();
+                }
+                $stmt->close();
+            } else {
+                $mensaje_alerta = '❌ Error en el sistema. Intente más tarde.';
+                error_log("Error prepare login: " . $conexion->error);
+            }
         }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -56,7 +106,6 @@ if (!empty($_POST)) {
     <script src="assets/js/all.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             height: 100vh;
             display: flex;
@@ -67,7 +116,6 @@ if (!empty($_POST)) {
             overflow: hidden;
             position: relative;
         }
-
         .circle {
             position: absolute;
             border-radius: 50%;
@@ -81,7 +129,6 @@ if (!empty($_POST)) {
             0% { transform: translate(0, 0); }
             100% { transform: translate(80px, 80px); }
         }
-
         .logo-wrapper {
             width: 100px;
             height: 100px;
@@ -95,7 +142,6 @@ if (!empty($_POST)) {
             border: 3px solid #4facfe;
         }
         .logo-wrapper img { width: 70px; }
-
         .login-card {
             background: rgba(20, 20, 35, 0.4);
             backdrop-filter: blur(20px);
@@ -107,7 +153,6 @@ if (!empty($_POST)) {
             box-shadow: 0 25px 45px rgba(0,0,0,0.6);
             transition: 0.3s;
         }
-
         .input-group {
             position: relative;
             margin-bottom: 25px;
@@ -137,7 +182,6 @@ if (!empty($_POST)) {
             color: #4facfe;
             font-size: 1.1rem;
         }
-
         .btn-login {
             width: 100%;
             padding: 14px;
@@ -156,7 +200,6 @@ if (!empty($_POST)) {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(79,172,254,0.5);
         }
-
         .alert-error {
             color: #ff6b6b;
             background: rgba(255,75,75,0.15);
@@ -166,7 +209,6 @@ if (!empty($_POST)) {
             font-size: 0.85rem;
             border-left: 3px solid #ff6b6b;
         }
-
         #loader-overlay {
             position: fixed;
             top: 0;
@@ -201,7 +243,6 @@ if (!empty($_POST)) {
             font-weight: 600;
             margin-top: 20px;
         }
-
         .cyber-note {
             margin-top: 20px;
             font-size: 0.75rem;
@@ -212,7 +253,6 @@ if (!empty($_POST)) {
     </style>
 </head>
 <body>
-
     <div class="circle c1"></div>
     <div class="circle c2"></div>
 
@@ -220,13 +260,14 @@ if (!empty($_POST)) {
         <div class="logo-wrapper">
             <img src="assets/img/logo.png" alt="Logo CyberCenter">
         </div>
-        <div class="welcome-message">Bienvenido, <span id="nombreUsuario"><?php echo $nombre_usuario; ?></span></div>
+        <div class="welcome-message">Bienvenido, <span id="nombreUsuario"><?php echo htmlspecialchars($nombre_usuario); ?></span></div>
         <div class="progress-bar-container">
             <div class="progress-fill" id="progressFill"></div>
         </div>
         <div class="cyber-note" style="border: none; margin-top: 15px;">Cargando panel de control de equipos...</div>
     </div>
 
+    <!-- Formulario de login -->
     <div class="login-card" id="loginFormContainer">
         <div class="logo-wrapper">
             <img src="assets/img/logo.png" alt="CyberCenter UNERG">
@@ -236,7 +277,7 @@ if (!empty($_POST)) {
 
         <form method="POST">
             <?php if (!empty($mensaje_alerta)): ?>
-                <div class="alert-error"><?php echo $mensaje_alerta; ?></div>
+                <div class="alert-error"><?php echo htmlspecialchars($mensaje_alerta); ?></div>
             <?php endif; ?>
 
             <div class="input-group">
@@ -259,7 +300,7 @@ if (!empty($_POST)) {
         <noscript>
             <div class="alert-error" style="margin-top: 15px; background: #2a1a1a;">
                 ⚠️ JavaScript desactivado. Si ya iniciaste sesión, haz clic 
-                <a href="src/" style="color: #4facfe;">aquí</a> para continuar.
+                <a href="<?php echo $panel_url; ?>" style="color: #4facfe;">aquí</a> para continuar.
             </div>
         </noscript>
     </div>
@@ -275,7 +316,7 @@ if (!empty($_POST)) {
             const intervalo = setInterval(() => {
                 if (progreso >= 100) {
                     clearInterval(intervalo);
-                    window.location.href = 'src/';
+                    window.location.href = '<?php echo $panel_url; ?>';
                 } else {
                     progreso += 3;
                     barra.style.width = progreso + '%';
