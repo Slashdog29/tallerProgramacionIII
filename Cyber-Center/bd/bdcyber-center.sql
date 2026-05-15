@@ -11,7 +11,7 @@
  Target Server Version : 120202 (12.2.2-MariaDB)
  File Encoding         : 65001
 
- Date: 15/05/2026 01:45:57
+ Date: 15/05/2026 03:17:55
 */
 
 SET NAMES utf8mb4;
@@ -73,11 +73,17 @@ CREATE TABLE `HISTORIAL`  (
   `sector` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci NULL DEFAULT NULL,
   `acciones` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_uca1400_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_uca1400_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of HISTORIAL
 -- ----------------------------
+INSERT INTO `HISTORIAL` VALUES (1, 'Administrador', '::1', '2026-05-15 05:59:26', 'login', 'Inicio de sesión');
+INSERT INTO `HISTORIAL` VALUES (2, 'Administrador', '::1', '2026-05-15 06:18:05', 'login', 'Inicio de sesión');
+INSERT INTO `HISTORIAL` VALUES (3, 'Administrador', '::1', '2026-05-15 06:42:06', 'login', 'Inicio de sesión');
+INSERT INTO `HISTORIAL` VALUES (4, 'Administrador', '::1', '2026-05-15 06:48:44', 'login', 'Inicio de sesión');
+INSERT INTO `HISTORIAL` VALUES (5, 'Administrador', '::1', '2026-05-15 07:08:36', 'login', 'Inicio de sesión');
+INSERT INTO `HISTORIAL` VALUES (6, 'Administrador', '::1', '2026-05-15 07:11:13', 'login', 'Inicio de sesión');
 
 -- ----------------------------
 -- Table structure for PERIFERICO
@@ -176,7 +182,7 @@ CREATE TABLE `USUARIO`  (
   `nombre` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci NOT NULL,
   `correo` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci NOT NULL,
   `usuario` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci NOT NULL,
-  `clave` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci NOT NULL,
+  `clave` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci NOT NULL,
   `estado` int NOT NULL DEFAULT 1,
   PRIMARY KEY (`idusuario`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_spanish_ci ROW_FORMAT = DYNAMIC;
@@ -184,7 +190,7 @@ CREATE TABLE `USUARIO`  (
 -- ----------------------------
 -- Records of USUARIO
 -- ----------------------------
-INSERT INTO `USUARIO` VALUES (1, 'Administrador', 'admin@admin.com', 'admin', '21232f297a57a5a743894a0e4a801fc3', 1);
+INSERT INTO `USUARIO` VALUES (1, 'Administrador', 'admin@admin.com', 'admin', '$2y$12$OQ4wUJa6IelzfFNNVe.SeOtsUQ8a9Wwj5s4vqt77afz3bLrNJm.wi', 1);
 
 -- ----------------------------
 -- Triggers structure for table RESERVA
