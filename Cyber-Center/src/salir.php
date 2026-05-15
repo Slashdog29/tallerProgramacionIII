@@ -1,14 +1,14 @@
 <?php
     session_start();
-    include "../conexion.php"; // <--- AGREGA ESTA LÍNEA (Verifica que la ruta sea correcta)
+    include "../conexion.php"; // 
 
     $nombre = $_SESSION['nombre'];
     $ip = $_SERVER['REMOTE_ADDR'];
     $fyh = date('Y-m-d H:i:s');
     $acciones = "Cierre de Sesión";
+    $sector = "Autenticación";
 
-    // Ahora $conexion ya tendrá valor y no dará Fatal Error
-    $query_insert = mysqli_query($conexion, "INSERT INTO HISTORIAL(usuario, ip, fyh, sector, acciones) VALUES ('$nombre', '$ip', '$fyh', '$ip', '$acciones')");
+    $query_insert = mysqli_query($conexion, "INSERT INTO historial(usuario, ip, fyh, sector, acciones) VALUES ('$nombre', '$ip', '$fyh', '$sector', '$acciones')");
     
     session_destroy();
     header('location: ../');

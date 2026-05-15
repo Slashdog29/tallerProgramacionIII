@@ -10,18 +10,18 @@ $sector = "Panel Principal";
 $acciones = "Acceso al Dashboard";
 
 // Registro en historial mediante prepared statement para seguridad
-$stmtHist = $conexion->prepare("INSERT INTO HISTORIAL(usuario, ip, fyh, sector, acciones) VALUES (?, ?, ?, ?, ?)");
+$stmtHist = $conexion->prepare("INSERT INTO historial(usuario, ip, fyh, sector, acciones) VALUES (?, ?, ?, ?, ?)");
 $stmtHist->bind_param("sssss", $nombre, $ip, $fyh, $sector, $acciones);
 $stmtHist->execute();
 
 // Conteos rápidos desde la base de datos real
-$resU = mysqli_query($conexion, "SELECT COUNT(*) as total FROM USUARIO");
+$resU = mysqli_query($conexion, "SELECT COUNT(*) as total FROM usuarios");
 $totalU = mysqli_fetch_assoc($resU)['total'];
 
-$resP = mysqli_query($conexion, "SELECT COUNT(*) as total FROM PERSONA");
+$resP = mysqli_query($conexion, "SELECT COUNT(*) as total FROM clientes");
 $totalP = mysqli_fetch_assoc($resP)['total'];
 
-$resE = mysqli_query($conexion, "SELECT COUNT(*) as total FROM EQUIPO");
+$resE = mysqli_query($conexion, "SELECT COUNT(*) as total FROM computadoras");
 $totalE = mysqli_fetch_assoc($resE)['total'];
 ?>
 
@@ -175,7 +175,7 @@ $totalE = mysqli_fetch_assoc($resE)['total'];
             <a href="clientes.php" class="stat-card card-success">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <span class="stat-label">Personas</span>
+                        <span class="stat-label">Clientes</span>
                         <div class="stat-value"><?php echo $totalP; ?></div>
                         <div class="text-success small font-weight-bold">
                             <i class="fas fa-id-card mr-1"></i> Registro activo
