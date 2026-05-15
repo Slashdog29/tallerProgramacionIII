@@ -204,7 +204,7 @@ ON DUPLICATE KEY UPDATE clave = VALUES(clave);
 
 -- Usuario administrador por defecto (contraseña: admin123, cambiar en producción)
 INSERT INTO usuarios (nombre_completo, cedula_identidad, correo_institucional, password_hash, rol, activo)
-SELECT 'Administrador', '00000000', 'admin@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'super_admin', 1
+SELECT 'Administrador', '00000000', 'admin@gmail.com', '$2y$10$NoWPkXx6Wz8f5zouiRqOJ.p7CTUWJqLyRA.CeplaywEBvs5pWLexW', 'super_admin', 1
 WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE correo_institucional = 'admin@gmail.com');
 
 -- Una computadora de ejemplo
