@@ -133,10 +133,10 @@ if (empty($_SESSION['active'])) {
 
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" id="userDropdown" href="#" data-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle" id="userDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-user-circle fa-lg"></i>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow border-0" style="border-radius: 10px; overflow: hidden;">
+                    <div class="dropdown-menu dropdown-menu-right shadow border-0" aria-labelledby="userDropdown" style="border-radius: 10px; overflow: hidden;">
                         <div class="user-name-tag text-primary text-uppercase"><?php echo $_SESSION['nombre']; ?></div>
                         <a class="dropdown-item py-2" href="#" data-toggle="modal" data-target="#nuevo_pass"><i class="fas fa-key mr-2 opacity-50"></i> Seguridad</a>
                         <div class="dropdown-divider m-0"></div> 
