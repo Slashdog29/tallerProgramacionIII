@@ -15,7 +15,7 @@ $(document).ready(function() {
             showCancelButton: true
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = '../salir.php';
+                window.location.href = 'salir.php';
             }
         });
     });
