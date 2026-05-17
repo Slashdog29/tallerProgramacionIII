@@ -73,8 +73,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Consulta de computadoras disponibles para el selector (estado_operativo = 'disponible')
-$sql_comp = "SELECT id, nombre, ip_address, estado_operativo FROM computadoras WHERE estado_operativo = 'disponible' ORDER BY id ASC";
-$res_comp = mysqli_query($conexion, $sql_comp);
+// Usamos SELECT * para evitar errores si la tabla no tiene una columna 'nombre'.
+// Construimos la etiqueta de forma dinámica según las columnas disponibles.
+$sql_comp = "SELECT * FROM computadoras WHERE estado_operativo = 'disponible' ORDER BY id ASC";
+try {
+    $res_comp = mysqli_query($conexion, $sql_comp);
+} catch (mysqli_sql_exception $ex) {
+    // Manejo seguro en caso de que mysqli esté configurado para lanzar excepciones
+    $res_comp = false;
+    $mensaje = "Error al obtener las computadoras: " . $ex->getMessage();
+}
+
 
 ?>
 
