@@ -322,6 +322,12 @@ if (!$resultado || !$typeResult) {
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group">
+                                        <!-- Botón para asignar dispositivo al cliente -->
+                                        <!-- Cambia 'asignar.php' por la ruta si la colocas en otra carpeta -->
+                                        <a href="asignar.php?id_cliente=<?php echo intval($row['id']); ?>" class="btn btn-sm btn-outline-info me-2" title="Asignar dispositivo">
+                                            <i class="fas fa-desktop"></i>
+                                        </a>
+
                                         <button class="btn btn-sm btn-outline-light me-2 edit-client"><i class="fas fa-pen"></i></button>
                                         <?php if ($row['estado_cuenta'] === 'activo') { ?>
                                             <button class="btn btn-sm btn-outline-danger delete-client"><i class="fas fa-trash-alt"></i></button>
